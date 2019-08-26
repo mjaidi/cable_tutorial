@@ -2,12 +2,15 @@ class MessagesController < ApplicationController
   before_action :get_messages
 
   def index
+    @message  = @conversation.messages.new
   end
 
   def create
-    message = current_user.messages.build(message_params)
-    if message.save
-      redirect_to root_path
+     @message = @conversation.messages.new(message_params)
+    if @message.save
+      ActionCable.server.broadcast "conversation_#{@conversation.id}",
+                                   message:  render_message(@message),
+                                   conversation: @conversation.id
     else
       render 'index'
     end
@@ -16,11 +19,14 @@ class MessagesController < ApplicationController
   private
 
   def get_messages
-    @messages = Message.for_display
-    @message  = current_user.messages.build
+    @conversation = Conversation.find(params[:conversation_id])
+    @messages = @conversation.messages
   end
 
   def message_params
-    params.require(:message).permit(:content)
+    params.require(:message).permit(:content, :user_id)
   end
+    def render_message(message)
+      render(partial: 'message', locals: { message: message })
+    end
 end
