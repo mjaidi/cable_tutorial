@@ -1,15 +1,10 @@
 <div id="messages" class="messages">
-    <div id="messages-table" class="messages-table">
+    <div id="messages-table" class="messages-table" data-id='<%= @conversation.id %>'>
         <% if @messages.any? %>
         <% @messages.each do |message| %>
-        <div class="message">
-            <div class="message-user">
-                <%= message.user.username %>:
-            </div>
-            <div class="message-content">
-                <%= message.content %>
-            </div>
-        </div>
+          <% if message.id %>
+            <%= render 'message', message: message %>
+          <% end %>
         <% end %>
         <% end %>
     </div>
